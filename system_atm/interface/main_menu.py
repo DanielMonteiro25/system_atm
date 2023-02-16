@@ -188,5 +188,3 @@ def menu(conexao: Connection, cursor:Cursor):
             operacao = False
 
 print("alterei")
-
-
