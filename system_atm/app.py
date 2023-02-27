@@ -3,26 +3,13 @@ import traceback
 
 from config import Connection, connect
 
+from query_tables import create_tables
+
 from container import container
 
 from adapters.inbound.menu_adapter import menu
 
 from adapters.outbound.repositories.repository import repository
-
-def create_tables() -> str:
-    # DROP TABLE IF EXISTS DADOS_BANCARIOS;
-    return """
-    BEGIN;
-
-    CREATE TABLE IF NOT EXISTS DADOS_BANCARIOS (
-        ID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-        NOME TEXT NOT NULL,
-        CONTA TEXT NOT NULL UNIQUE,
-        SALDO NUMERIC NOT NULL,
-        TIMESTAMP DATETIME DEFAULT CURRENT_TIMESTAMP
-    );
-    COMMIT;
-    """
 
 
 def main():
