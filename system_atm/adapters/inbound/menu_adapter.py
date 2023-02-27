@@ -4,7 +4,7 @@ from typing import Callable, Dict, TypedDict
 from config import system, name, Connection, connect, Cursor
 
 
-def limpar_tela():
+def clear_screen():
 
     system('cls') if name.lower() == 'nt' else system('clear')
 
@@ -37,7 +37,7 @@ def saque(cursor, conta_usuario, saldo_usuario):
 
         print("Saque efetuado com sucesso!")
 
-        limpar_tela()
+        clear_screen()
 
     else:
         print("Saldo insuficiente!")
@@ -86,7 +86,7 @@ class CustomerDTO():
 
 def check_fields(customer: dict) -> bool:
 
-    limpar_tela()
+    clear_screen()
 
     print("\n>>> Verificando formulário ... <<<")
 
@@ -135,18 +135,137 @@ def check_fields(customer: dict) -> bool:
 
     return fail
 
-# Executando ATM
+
+def main_menu(account_generator: Callable[[], tuple],
+              get_account: Callable[[tuple], tuple],
+              create_new_account: Callable[[tuple], tuple]) -> dict | None:
+
+    customer = {}
+
+    script = "\nSEJA BEM VINDO AO TERMINAL ATM - STARS***\
+          \n\n\
+          1 > Acessar conta\n\
+          2 + Cadastrar conta\n\
+          3 - Sair"
+
+    print(script)
+
+    while True:
+
+        match input("\nSelecione uma opção:_").strip():
+
+            case "1":
+
+                clear_screen()
+
+                primary_account: str | None = None
+
+                message = "\nInforme uma conta válida:_"
+
+                for i in range(3):
+
+                    primary_account = input(message).strip()
+
+                    if len(primary_account) < 7:
+
+                        message = "\nInforme uma conta válida para pesquisa:_"
+
+                    else:
+
+                        account = get_account((primary_account,))
+
+                        if account is None:
+                            message = "\nConta não localizada! Digite novamente:_"
+
+                        if i >= 2:
+                            raise Exception(
+                                "Favor entrar em contato com sua agência!")
+
+                if primary_account is None:
+                    input(
+                        "\n!!!Conta não identificada, acione qualquer tecla para retornar ao menu:_")
+                    break
+
+                # name = ""
+                # account = ""
+
+                # customer = {'name': name,
+                #             'account': account}
+            case "2":
+
+                clear_screen()
+
+                print("\nIniciando cadastro de conta...")
+
+                accounts = account_generator()
+
+                for account in accounts:
+                    print(f"{str(*account.keys())} - {str(*account.values())}")
+
+                num_account = input(
+                    'Selecione uma das contas geradas:_').strip()
+
+                name = input('Informe um nome para cliente:_').strip()
+
+                balance = input('Informe um valor:_').strip()
+
+                while True:
+
+                    create, occurrences, account = create_new_account(
+                        (num_account, name, balance, accounts))
+
+                    if create is False:
+
+                        if occurrences.get("account_num") is not None:
+                            num_account = input(
+                                f'{occurrences["account_num"]}:_').strip()
+
+                        elif occurrences.get("name") is not None:
+                            name = input(f'{occurrences["name"]}:_').strip()
+
+                        elif occurrences.get("balance") is not None:
+                            balance = input(
+                                f'{occurrences["balance"]}:_').strip()
+
+                    else:
+                        # clear_screen()
+
+                        input(
+                            f"\nConta {account} cadastrada com sucesso!!!\nPressione qualquer tecla para retornar ao menu...")
+
+                        # clear_screen()
+
+                        print(script)
+
+                        break
+                break
+
+            case "3":
+                break
+
+        break
+
+    return customer if customer else None
 
 
-def menu(create_new_customer_inside_port: Callable[[tuple], tuple],
+def menu(account_generator_inside_port: Callable[[], tuple],
+         create_new_customer_inside_port: Callable[[tuple], tuple],
          get_account_inside_port: Callable[[tuple], tuple],
          execute_transfer_inside_port: Callable[[str, str, float], str]) -> None:
+
+    clear_screen()
+
+    main_menu(account_generator_inside_port,
+              get_account_inside_port,
+              create_new_customer_inside_port)
+
+    return
 
     primary_account: str | None = None
 
     total_attempts = 0
 
-    limpar_tela()
+    clear_screen()
 
     roteiro = """
     
@@ -213,7 +332,7 @@ def menu(create_new_customer_inside_port: Callable[[tuple], tuple],
 
             case "3":
 
-                limpar_tela()
+                clear_screen()
 
                 # saque(cursor,
                 #       primary_account,
@@ -239,7 +358,7 @@ def menu(create_new_customer_inside_port: Callable[[tuple], tuple],
 
             case "6":
 
-                limpar_tela()
+                clear_screen()
 
                 print("\nIniciando cadastro de conta...")
 
@@ -254,12 +373,12 @@ def menu(create_new_customer_inside_port: Callable[[tuple], tuple],
 
                     if check_fields(customer) is True:
 
-                        limpar_tela()
+                        clear_screen()
 
                         if input("\n>>> Foram identificadas ocorrências no cadastro de conta! <<<\
                                  \nTecle ENTER para continuar ou [C] para cancelar e retornar o menu: ").upper() == "C":
 
-                            limpar_tela()
+                            clear_screen()
 
                             print(roteiro)
 
@@ -271,12 +390,12 @@ def menu(create_new_customer_inside_port: Callable[[tuple], tuple],
                                                          customer['account'],
                                                          customer['balance']))
 
-                        limpar_tela()
+                        clear_screen()
 
                         input(
                             f"\nConta {customer['account']} cadastrada com sucesso!!!\nPressione qualquer tecla para retornar ao menu...")
 
-                        limpar_tela()
+                        clear_screen()
 
                         print(roteiro)
 
